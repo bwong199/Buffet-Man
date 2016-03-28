@@ -43,7 +43,7 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-public class MainActivity extends AppCompatActivity implements LocationListener  {
+public class MainActivity extends AppCompatActivity implements LocationListener {
 
     String consumerKey;
     String consumerSecret;
@@ -86,108 +86,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         buffetListView = (ListView) findViewById(R.id.listView);
 
 
-
-
-        consumerKey = "IoIwiQhdfvWH0Lwa5yk2OA";
-        consumerSecret = "G-K0sy5M56VQlqNdZg_0hvkDkbM";
-        token = "00NVtQ9wgsG1k6EjmKrLdq4fr5uOVWuA";
-        tokenSecret = "3rBTB-G7ejHUZsvmiKpoYWWCtWI";
-
-        YelpAPIFactory apiFactory = new YelpAPIFactory(consumerKey, consumerSecret, token, tokenSecret);
-        YelpAPI yelpAPI = apiFactory.createAPI();
-
-        Map<String, String> params = new HashMap<>();
-
-        params.put("term", "buffet");
-//        params.put("limit", "30");
-
-        CoordinateOptions coordinate = CoordinateOptions.builder()
-                .latitude(51.03)
-                .longitude(-114.14).build();
-//
-        Call<SearchResponse> call = yelpAPI.search(coordinate, params);
-//
-//        Callback<SearchResponse> callback = new Callback<SearchResponse>() {
-//            @Override
-//            public void onResponse(Response<SearchResponse> response, Retrofit retrofit) {
-//                SearchResponse searchResponse = response.body();
-//                // Update UI text with the searchResponse.
-//                System.out.println(response.body());
-//            }
-//            @Override
-//            public void onFailure(Throwable t) {
-//                // HTTP error happened, do something to handle it.
-//            }
-//        };
-//
-//        call.enqueue(callback);
-
-        Callback<SearchResponse> callback = new Callback<SearchResponse>() {
-            @Override
-            public void onResponse(Response<SearchResponse> response, Retrofit retrofit) {
-                SearchResponse searchResponse = response.body();
-//                // Update UI text with the searchResponse.
-//                System.out.println("Response from YELP " + response.body().businesses().get(0));
-
-                System.out.println(response.body().businesses().get(0));
-                for (int i = 0; i < response.body().businesses().size(); i++) {
-//                    System.out.println("YELP " + i + " " +  response.body().businesses().get(i).name());
-//                    System.out.println("YELP " + i + " " +  response.body().businesses().get(i).distance()/1000 + " m");
-                    Buffet buffetItem = new Buffet();
-                    buffetItem.setName(response.body().businesses().get(i).name());
-                    buffetItem.setDistance(response.body().businesses().get(i).distance() / 1000);
-                    buffetItem.setCategory(String.valueOf(response.body().businesses().get(i).categories().get(0).name()));
-                    buffetItem.setRating(response.body().businesses().get(i).rating());
-                    buffetItem.setPhoneNumber(response.body().businesses().get(i).phone());
-                    buffetItem.setAddress(String.valueOf(response.body().businesses().get(i).location().displayAddress()));
-                    buffetItem.setImageURL(response.body().businesses().get(i).imageUrl());
-                    mBuffetList.add(buffetItem);
-
-
-
-                    //                    mBuffetSummaryList.add(response.body().businesses().get(i).name() + " " + response.body().businesses().get(i).distance());
-//
-//                    System.out.println(response.body().businesses().get(i).name() + " " + response.body().businesses().get(i).distance());
-                }
-
-                Collections.sort(mBuffetList);
-                for (Buffet item : mBuffetList) {
-                    String formattedDistance = String.format("%.2f", item.getDistance());
-                    mBuffetSummaryList.add(item.getName() + " - " + item.getCategory() + " - " + formattedDistance + " km " + " - " + item.getRating() + "/5 ");
-
-                }
-
-                arrayAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, mBuffetSummaryList);
-
-                buffetListView.setAdapter(arrayAdapter);
-
-                buffetListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        System.out.println(position);
-
-                        Intent intent = new Intent(getApplicationContext(), BuffetDetailActivity.class);
-                        intent.putExtra("name", mBuffetList.get(position).getName());
-                        intent.putExtra("address", mBuffetList.get(position).getAddress());
-                        intent.putExtra("category", mBuffetList.get(position).getCategory());
-                        intent.putExtra("rating", mBuffetList.get(position).getRating());
-                        intent.putExtra("phone", mBuffetList.get(position).getPhoneNumber());
-                        intent.putExtra("image", mBuffetList.get(position).getImageURL());
-                        startActivity(intent);
-                    }
-
-                });
-
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                // HTTP error happened, do something to handle it.
-            }
-        };
-
-        call.enqueue(callback);
-
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -205,19 +103,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-        if(gpsEnabled && networkEnabled &&  location != null){
+        if (gpsEnabled && networkEnabled && location != null) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 0.0f, this);
-        }else {
+        } else {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 0.0f, this);
         }
 
         provider = locationManager.getBestProvider(new Criteria(), false);
 
-
         location = locationManager.getLastKnownLocation(provider);
 
         onLocationChanged(location);
-
 
 
     }
@@ -252,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
+
+
             lat = location.getLatitude();
             lng = location.getLongitude();
             alt = location.getAltitude();
@@ -266,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             List<Address> listAddresses = null;
             try {
                 listAddresses = geocoder.getFromLocation(lat, lng, 1);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -282,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     System.out.println(addressHolder);
                 }
 
-//                addressTV.setText("Address:\n" + addressHolder);
+                addressTV.setText(addressHolder);
 
             }
 
@@ -292,6 +191,94 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
             System.out.println("Latitude" + String.valueOf(lat));
             System.out.println("Longitude" + String.valueOf(lng));
+
+            consumerKey = "IoIwiQhdfvWH0Lwa5yk2OA";
+            consumerSecret = "G-K0sy5M56VQlqNdZg_0hvkDkbM";
+            token = "00NVtQ9wgsG1k6EjmKrLdq4fr5uOVWuA";
+            tokenSecret = "3rBTB-G7ejHUZsvmiKpoYWWCtWI";
+
+            YelpAPIFactory apiFactory = new YelpAPIFactory(consumerKey, consumerSecret, token, tokenSecret);
+            YelpAPI yelpAPI = apiFactory.createAPI();
+
+            Map<String, String> params = new HashMap<>();
+
+            params.put("term", "buffet");
+            params.put("term", "all you can eat");
+//        params.put("limit", "30");
+
+            CoordinateOptions coordinate = CoordinateOptions.builder()
+                    .latitude(lat)
+                    .longitude(lng).build();
+//
+            Call<SearchResponse> call = yelpAPI.search(coordinate, params);
+
+            Callback<SearchResponse> callback = new Callback<SearchResponse>() {
+                @Override
+                public void onResponse(Response<SearchResponse> response, Retrofit retrofit) {
+                    SearchResponse searchResponse = response.body();
+//                // Update UI text with the searchResponse.
+//                System.out.println("Response from YELP " + response.body().businesses().get(0));
+                    mBuffetList.clear();
+                    mBuffetSummaryList.clear();
+                    System.out.println(response.body().businesses().get(0));
+                    for (int i = 0; i < response.body().businesses().size(); i++) {
+                        System.out.println("YELP " + i + " " + response.body().businesses().get(i));
+//                    System.out.println("YELP " + i + " " +  response.body().businesses().get(i).distance()/1000 + " m");
+                        Buffet buffetItem = new Buffet();
+                        buffetItem.setName(response.body().businesses().get(i).name());
+                        buffetItem.setDistance(response.body().businesses().get(i).distance() / 1000);
+                        buffetItem.setCategory(String.valueOf(response.body().businesses().get(i).categories().get(0).name()));
+                        buffetItem.setRating(response.body().businesses().get(i).rating());
+                        buffetItem.setPhoneNumber(response.body().businesses().get(i).phone());
+                        buffetItem.setAddress(String.valueOf(response.body().businesses().get(i).location().displayAddress()));
+                        buffetItem.setImageURL(response.body().businesses().get(i).imageUrl());
+                        buffetItem.setSummary(response.body().businesses().get(i).snippetText());
+                        mBuffetList.add(buffetItem);
+
+
+                        //                    mBuffetSummaryList.add(response.body().businesses().get(i).name() + " " + response.body().businesses().get(i).distance());
+//
+//                    System.out.println(response.body().businesses().get(i).name() + " " + response.body().businesses().get(i).distance());
+                    }
+
+                    Collections.sort(mBuffetList);
+                    for (Buffet item : mBuffetList) {
+                        String formattedDistance = String.format("%.2f", item.getDistance());
+                        mBuffetSummaryList.add(item.getName() + " - " + item.getCategory() + " - " + formattedDistance + " km " + " - " + item.getRating() + "/5 ");
+
+                    }
+
+
+                    arrayAdapter = new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_list_item_1, mBuffetSummaryList);
+
+                    buffetListView.setAdapter(arrayAdapter);
+
+                    buffetListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            System.out.println(position);
+
+                            Intent intent = new Intent(getApplicationContext(), BuffetDetailActivity.class);
+                            intent.putExtra("name", mBuffetList.get(position).getName());
+                            intent.putExtra("address", mBuffetList.get(position).getAddress());
+                            intent.putExtra("category", mBuffetList.get(position).getCategory());
+                            intent.putExtra("rating", mBuffetList.get(position).getRating());
+                            intent.putExtra("phone", mBuffetList.get(position).getPhoneNumber());
+                            intent.putExtra("image", mBuffetList.get(position).getImageURL());
+                            intent.putExtra("summary", mBuffetList.get(position).getSummary());
+                            startActivity(intent);
+                        }
+                    });
+
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    // HTTP error happened, do something to handle it.
+                }
+            };
+
+            call.enqueue(callback);
 
 
         } else {

@@ -31,6 +31,10 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
 }
 
 dependencies {
@@ -40,4 +44,5 @@ dependencies {
     compile 'com.android.support:design:23.2.1'
     compile 'com.yelp.clientlib:yelp-android:1.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
+//    compile 'com.google.android.gms:play-services:8.4.0'
 }
