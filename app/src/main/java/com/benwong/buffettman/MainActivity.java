@@ -43,7 +43,7 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity implements LocationListener  {
 
     String consumerKey;
     String consumerSecret;
@@ -66,6 +66,10 @@ public class MainActivity extends AppCompatActivity  {
     Float accuracy;
 
     TextView addressTV;
+
+    LocationManager locationManager;
+    String provider;
+    Location location;
 
 
     @Override
@@ -95,15 +99,14 @@ public class MainActivity extends AppCompatActivity  {
         Map<String, String> params = new HashMap<>();
 
         params.put("term", "buffet");
-        params.put("limit", "20");
+//        params.put("limit", "30");
 
         CoordinateOptions coordinate = CoordinateOptions.builder()
                 .latitude(51.03)
                 .longitude(-114.14).build();
 //
         Call<SearchResponse> call = yelpAPI.search(coordinate, params);
-
-
+//
 //        Callback<SearchResponse> callback = new Callback<SearchResponse>() {
 //            @Override
 //            public void onResponse(Response<SearchResponse> response, Retrofit retrofit) {
@@ -116,7 +119,7 @@ public class MainActivity extends AppCompatActivity  {
 //                // HTTP error happened, do something to handle it.
 //            }
 //        };
-
+//
 //        call.enqueue(callback);
 
         Callback<SearchResponse> callback = new Callback<SearchResponse>() {
@@ -185,6 +188,38 @@ public class MainActivity extends AppCompatActivity  {
 
         call.enqueue(callback);
 
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+
+        // check to see if location is turned on
+        boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+        if(gpsEnabled && networkEnabled &&  location != null){
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 0.0f, this);
+        }else {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 0.0f, this);
+        }
+
+        provider = locationManager.getBestProvider(new Criteria(), false);
+
+
+        location = locationManager.getLastKnownLocation(provider);
+
+        onLocationChanged(location);
+
+
+
     }
 
     @Override
@@ -203,9 +238,10 @@ public class MainActivity extends AppCompatActivity  {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.refresh) {
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-
-            startActivity(intent);
+//            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+//
+//            startActivity(intent);
+            onLocationChanged(location);
             return true;
         }
 
@@ -213,4 +249,68 @@ public class MainActivity extends AppCompatActivity  {
     }
 
 
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null) {
+            lat = location.getLatitude();
+            lng = location.getLongitude();
+            alt = location.getAltitude();
+            bearing = location.getBearing();
+            speed = location.getSpeed();
+            accuracy = location.getAccuracy();
+
+
+            Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+
+
+            List<Address> listAddresses = null;
+            try {
+                listAddresses = geocoder.getFromLocation(lat, lng, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (listAddresses != null && listAddresses.size() > 0) {
+
+                Log.i("PlaceInfo", listAddresses.get(0).toString());
+
+                String addressHolder = "";
+
+                for (int i = 0; i <= listAddresses.get(0).getMaxAddressLineIndex(); i++) {
+
+                    addressHolder += listAddresses.get(0).getAddressLine(i) + "\n";
+                    System.out.println(addressHolder);
+                }
+
+//                addressTV.setText("Address:\n" + addressHolder);
+
+            }
+
+            NumberFormat formatter = new DecimalFormat("#0.00");
+            lat = Double.valueOf(formatter.format(lat));
+            lng = Double.valueOf(formatter.format(lng));
+
+            System.out.println("Latitude" + String.valueOf(lat));
+            System.out.println("Longitude" + String.valueOf(lng));
+
+
+        } else {
+            Toast.makeText(getApplicationContext(), "Location cannot be found", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
 }
