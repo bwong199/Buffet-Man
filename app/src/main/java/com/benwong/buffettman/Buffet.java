@@ -13,6 +13,15 @@ public class Buffet implements Comparable<Buffet>{
     private String address;
     private String imageURL;
     private String summary;
+    private Integer voteCount;
+
+    public Integer getVoteCount() {
+        return voteCount;
+    }
+
+    public void setVoteCount(Integer voteCount) {
+        this.voteCount = voteCount;
+    }
 
     public String getSummary() {
         return summary;

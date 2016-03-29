@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             Map<String, String> params = new HashMap<>();
 
             params.put("term", "buffet");
-            params.put("term", "all you can eat");
+            params.put("term", "all-you-can-eat");
 //        params.put("limit", "30");
 
             CoordinateOptions coordinate = CoordinateOptions.builder()
@@ -233,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                         buffetItem.setAddress(String.valueOf(response.body().businesses().get(i).location().displayAddress()));
                         buffetItem.setImageURL(response.body().businesses().get(i).imageUrl());
                         buffetItem.setSummary(response.body().businesses().get(i).snippetText());
+                        buffetItem.setVoteCount(response.body().businesses().get(i).reviewCount());
                         mBuffetList.add(buffetItem);
 
 
@@ -266,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                             intent.putExtra("phone", mBuffetList.get(position).getPhoneNumber());
                             intent.putExtra("image", mBuffetList.get(position).getImageURL());
                             intent.putExtra("summary", mBuffetList.get(position).getSummary());
+                            intent.putExtra("reviewCount", mBuffetList.get(position).getVoteCount());
                             startActivity(intent);
                         }
                     });

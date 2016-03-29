@@ -30,6 +30,7 @@ public class BuffetDetailActivity extends AppCompatActivity  {
     String phoneNumber;
     String imageURL;
     String summary;
+    Integer reviewCount;
 
 
     TextView nameTV;
@@ -97,6 +98,7 @@ public class BuffetDetailActivity extends AppCompatActivity  {
         phoneNumber = intent.getStringExtra("phone");
         imageURL = intent.getStringExtra("image");
         summary = intent.getStringExtra("summary");
+        reviewCount = intent.getIntExtra("reviewCount", 0);
 
         System.out.println(name + address + category + rating + phoneNumber + imageURL);
 
@@ -104,7 +106,7 @@ public class BuffetDetailActivity extends AppCompatActivity  {
         categoryTV.setText(category);
         addressTV.setText(address);
         phoneTV.setText(phoneNumber);
-        ratingTV.setText(String.valueOf(rating) + "/5 ");
+        ratingTV.setText(String.valueOf(rating) + "/5 - " + String.valueOf(reviewCount) + " reviews ");
         summaryTV.setText(summary);
 
         phoneTV.setOnClickListener(new View.OnClickListener() {
